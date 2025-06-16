@@ -1,0 +1,72 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Install Dependencies",
+			"type": "shell",
+			"command": "pip",
+			"args": [
+				"install",
+				"-r",
+				"requirements.txt"
+			],
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check GPU Memory",
+			"type": "shell",
+			"command": "python",
+			"args": ["scripts/utils.py"],
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Train DPO (Sample Dataset)",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"scripts/train_dpo.py",
+				"--model_id", "microsoft/DialoGPT-small",
+				"--dataset", "data/sample_dpo_dataset.jsonl",
+				"--output_dir", "models/test-model",
+				"--batch_size", "1",
+				"--grad_accum", "4",
+				"--max_steps", "10",
+				"--report_to", "none"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate Dataset Format",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"-c",
+				"from scripts.utils import validate_dataset_format; import sys; result = validate_dataset_format('data/sample_dpo_dataset.jsonl'); print('✅ Dataset format is valid!' if result['valid'] else f'❌ Dataset validation failed: {result[\"error\"]}');"
+			],
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		}
+	]
+}
