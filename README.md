@@ -1,6 +1,6 @@
-# Delirium QLoRA DPO Fine-tuning Project
+# Insanity LLM: QLoRA DPO Fine-tuning Toolkit
 
-A minimal and efficient setup for fine-tuning large language models using QLoRA (Quantized Low-Rank Adaptation) and DPO (Direct Preference Optimization) with Unsloth.
+A minimal and efficient setup for fine-tuning large language models using QL| `--model_id` | Required | Hugging Face model ID (e.g., `Qwen/Qwen3-4B-Base`) |RA (Quantized Low-Rank Adaptation) and DPO (Direct Preference Optimization) with Unsloth.
 
 I am using sam-paech's [Gutenberg dataset](https://huggingface.co/datasets/sam-paech/gutenbergs_1_2_3_4-antislop-dpo) for training, but you can use any Hugging Face dataset with the provided scripts. Their Delirium v1 Model was pretty fun to play with, so I wanted to try it out with QLoRA and DPO.
 
@@ -8,22 +8,36 @@ I am using sam-paech's [Gutenberg dataset](https://huggingface.co/datasets/sam-p
 
 ### Prerequisites
 
-- Python 3.12+
+- Python 3.10+
 - CUDA-compatible GPU (recommended: 16GB+ VRAM for 14B models)
 - Git and Git LFS
 
 ### Installation
 
-1. **Clone and setup the environment:**
+1. **Install the package:**
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Install in development mode
+pip install -e .
 
-# Or install manually:
-pip install "unsloth[torch]" datasets trl bitsandbytes einops peft accelerate wandb
+# Or install from requirements
+pip install -r requirements.txt
 ```
 
-2. **Login to Hugging Face and Weights & Biases (optional):**
+2. **Verify the setup:**
+```bash
+python3 verify_setup.py
+```
+
+2. **Configure directories (optional):**
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env to customize paths (optional - defaults work fine)
+# nano .env
+```
+
+3. **Login to Hugging Face and Weights & Biases (optional):**
 ```bash
 huggingface-cli login
 wandb login
@@ -34,38 +48,79 @@ wandb login
 1. **Download a dataset:**
 ```bash
 # Download any Hugging Face dataset
-python scripts/download_datasets.py sam-paech/gutenbergs_1_2_3_4-antislop-dpo
+insanity-download sam-paech/gutenbergs_1_2_3_4-antislop-dpo
 
 # Or use a specific subset/split
-python scripts/download_datasets.py argilla/ultrafeedback-binarized-preferences-cleaned --subset default --split train
+insanity-download argilla/ultrafeedback-binarized-preferences-cleaned --subset default --split train
 ```
 
 2. **Train a model with DPO:**
 ```bash
-python scripts/train_dpo.py \
-    --model_id Qwen/Qwen3-14B-Base \
+insanity-train \
+    --model_id Qwen/Qwen3-4B-Base \
     --dataset data/sam-paech_gutenbergs_1_2_3_4-antislop-dpo_train.jsonl \
-    --output_dir models/DeliriumQwen3-14B \
-    --batch_size 1 \
-    --grad_accum 8 \
-    --max_steps 1200 \
+    --output_dir models/DeliriumQwen3-4B \
+    --batch_size 2 \
+    --grad_accum 4 \
+    --max_steps 500 \
     --use_4bit \
     --checkpointing
 ```
 
+### CLI Commands
+
+The package provides two main CLI commands:
+
+- `insanity-download` - Download and convert HuggingFace datasets to JSONL
+- `insanity-train` - Train models using QLoRA + DPO
+
+## 🎯 Configuration
+
+### Environment Variables
+
+The project uses a `.env` file to configure directories and cache locations. Copy `.env.example` to `.env` and customize as needed:
+
+```bash
+# Dataset Configuration
+DATASETS_DIR=data                           # Where to save downloaded datasets
+CACHE_DIR=cache                            # Base cache directory
+HF_DATASETS_CACHE=cache/huggingface/datasets  # HuggingFace datasets cache
+HF_MODELS_CACHE=cache/huggingface/models     # HuggingFace models cache
+
+# Training Configuration
+MODELS_DIR=models                          # Where to save trained models
+LOGS_DIR=logs                             # Training logs directory
+```
+
+**Benefits:**
+- All datasets download to your specified directory (not HuggingFace's default cache)
+- Consistent cache management across all scripts
+- Easy to change storage locations without modifying code
+- Prevents accidental downloads to home directory
+
 ## 📁 Project Structure
 
 ```
-delirium/
-├── scripts/              # Training and utility scripts
-│   ├── train_dpo.py      # Main DPO training script
-│   ├── train_qwen3_4b.py # Quick launcher for Qwen3-4B training
-│   ├── download_datasets.py # Dataset downloader for any HF dataset
-│   └── utils.py          # Utility functions
-├── models/               # Saved fine-tuned models
-├── data/                 # Datasets and data files
-├── requirements.txt      # Python dependencies
-└── README.md            # This file
+insanity-llm/
+├── insanityllm/           # Main Python package
+│   ├── __init__.py        # Package initialization and exports  
+│   ├── config.py          # Environment configuration
+│   ├── utils.py           # Utility functions
+│   └── cli/               # Command-line interface
+│       ├── __init__.py
+│       ├── download.py    # Dataset downloader CLI
+│       └── train.py       # Model training CLI
+├── bin/                   # Convenience scripts
+│   ├── insanity-download
+│   └── insanity-train  
+├── examples/              # Configuration examples
+│   └── train_config.sh    # Training configuration examples
+├── models/                # Saved fine-tuned models
+├── data/                  # Datasets and data files
+├── pyproject.toml         # Package configuration
+├── verify_setup.py        # Setup verification script
+├── requirements.txt       # Python dependencies
+└── README.md             # This file
 ```
 
 ## 🔧 Training Parameters
@@ -133,8 +188,9 @@ Example JSONL format:
 
 This script is optimized for Qwen3 models but should work with most instruction-tuned models:
 
+- `Qwen/Qwen3-4B-Base` (recommended for most users)
 - `Qwen/Qwen3-7B-Base`
-- `Qwen/Qwen3-14B-Base`
+- `Qwen/Qwen3-14B-Base` (requires 24GB+ VRAM)
 - Other compatible models from Hugging Face
 
 ## 💡 Memory Optimization Tips
@@ -147,15 +203,15 @@ This script is optimized for Qwen3 models but should work with most instruction-
 
 ### Example for 24GB GPU:
 ```bash
-python scripts/train_dpo.py \
-    --model_id Qwen/Qwen3-14B-Base \
+insanity-train \
+    --model_id Qwen/Qwen3-4B-Base \
     --dataset your_dataset \
     --output_dir models/output \
-    --batch_size 1 \
-    --grad_accum 16 \
+    --batch_size 2 \
+    --grad_accum 4 \
     --use_4bit \
     --checkpointing \
-    --max_seq_length 2048
+    --max_seq_length 1024
 ```
 
 ## 🔍 Monitoring Training
@@ -221,7 +277,7 @@ python3 scripts/train_dpo.py \
 ## 🛠️ Development
 
 ### Adding New Features
-1. Create new scripts in the `scripts/` directory
+1. Add new functionality to the `insanityllm/` package
 2. Update requirements.txt if new dependencies are needed
 3. Update this README with usage instructions
 

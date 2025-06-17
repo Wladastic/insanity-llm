@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""
+Convenience script for downloading datasets using insanityllm
+"""
+import sys
+from insanityllm.cli.download import main
+
+if __name__ == "__main__":
+    main()

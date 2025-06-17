@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "insanityllm"
+version = "0.1.0"
+description = "QLoRA DPO fine-tuning toolkit for large language models"
+readme = "README.md"
+authors = [
+    {name = "Wladastic", email = "wladastic@example.com"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.36.0",
+    "datasets>=2.14.0",
+    "accelerate>=0.24.0",
+    "unsloth[torch]>=2024.1",
+    "peft>=0.7.0",
+    "trl>=0.7.0",
+    "bitsandbytes>=0.41.0",
+    "einops>=0.7.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter>=1.0.0",
+    "ipywidgets>=8.0.0",
+    "matplotlib>=3.7.0",
+]
+logging = [
+    "wandb>=0.16.0",
+]
+
+[project.scripts]
+insanity-download = "insanityllm.cli.download:main"
+insanity-train = "insanityllm.cli.train:main"
+
+[project.urls]
+Homepage = "https://github.com/Wladastic/insanity-llm"
+Repository = "https://github.com/Wladastic/insanity-llm.git"
+Issues = "https://github.com/Wladastic/insanity-llm/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["insanityllm*"]
+exclude = ["tests*"]
