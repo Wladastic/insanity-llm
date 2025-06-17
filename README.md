@@ -17,57 +17,63 @@ I am using sam-paech's [Gutenberg dataset](https://huggingface.co/datasets/sam-p
 ### Installation
 
 1. **Install the package:**
-```bash
-# Install in development mode
-pip install -e .
 
-# Or install from requirements
-pip install -r requirements.txt
-```
+    ```bash
+    # Install in development mode
+    pip install -e .
+
+    # Or install from requirements
+    pip install -r requirements.txt
+    ```
 
 2. **Verify the setup:**
-```bash
-python3 verify_setup.py
-```
 
-2. **Configure directories (sort of optional. better to do it):**
-```bash
-# Copy the example environment file
-cp .env.example .env
+    ```bash
+    python3 verify_setup.py
+    ```
 
-# Edit .env to customize paths (optional - defaults work fine)
-# nano .env
-```
+3. **Configure directories (sort of optional. better to do it):**
 
-3. **Login to Hugging Face and Weights & Biases (optional, but some models require verification):**
-```bash
-huggingface-cli login
-wandb login
-```
+    ```bash
+    # Copy the example environment file
+    cp .env.example .env
+
+    # Edit .env to customize paths (optional - defaults work fine)
+    # nano .env
+    ```
+
+4. **Login to Hugging Face and Weights & Biases (optional, but some models require verification):**
+
+    ```bash
+    huggingface-cli login
+    wandb login
+    ```
 
 ### Basic Usage
 
 1. **Download a dataset:**
-```bash
-# Download any Hugging Face dataset
-insanity-download sam-paech/gutenbergs_1_2_3_4-antislop-dpo
 
-# Or use a specific subset/split
-insanity-download argilla/ultrafeedback-binarized-preferences-cleaned --subset default --split train
-```
+    ```bash
+    # Download any Hugging Face dataset
+    insanity-download sam-paech/gutenbergs_1_2_3_4-antislop-dpo
+
+    # Or use a specific subset/split
+    insanity-download argilla/ultrafeedback-binarized-preferences-cleaned --subset default --split train
+    ```
 
 2. **Train a model with DPO:**
-```bash
-insanity-train \
-    --model_id Qwen/Qwen3-4B-Base \
-    --dataset data/sam-paech_gutenbergs_1_2_3_4-antislop-dpo_train.jsonl \
-    --output_dir models/DeliriumQwen3-4B \
-    --batch_size 2 \
-    --grad_accum 4 \
-    --max_steps 500 \
-    --use_4bit \
-    --checkpointing
-```
+
+    ```bash
+    insanity-train \
+        --model_id Qwen/Qwen3-4B-Base \
+        --dataset data/sam-paech_gutenbergs_1_2_3_4-antislop-dpo_train.jsonl \
+        --output_dir models/DeliriumQwen3-4B \
+        --batch_size 2 \
+        --grad_accum 4 \
+        --max_steps 500 \
+        --use_4bit \
+        --checkpointing
+    ```
 
 ### CLI Commands
 
@@ -95,6 +101,7 @@ LOGS_DIR=logs                             # Training logs directory
 ```
 
 **Benefits:**
+
 - All datasets download to your specified directory (not HuggingFace's default cache)
 - Consistent cache management across all scripts
 - Easy to change storage locations without modifying code
@@ -169,6 +176,7 @@ python scripts/download_datasets.py sam-paech/gutenbergs_1_2_3_4-antislop-dpo --
 ```
 
 The script will automatically:
+
 - Download the specified dataset from Hugging Face
 - Convert it to JSONL format
 - Generate a descriptive filename
@@ -177,11 +185,13 @@ The script will automatically:
 ### Dataset Format
 
 Your dataset should have three columns for DPO training:
+
 - `prompt`: The input prompt
 - `chosen`: The preferred response
 - `rejected`: The less preferred response
 
 Example JSONL format:
+
 ```json
 {"prompt": "Explain quantum computing", "chosen": "Good explanation...", "rejected": "Bad explanation..."}
 ```
@@ -197,13 +207,15 @@ This script is optimized for Qwen3 models but should work with most instruction-
 
 ## 💡 Memory Optimization Tips
 
-### For Large Models (14B+):
+### For Large Models (14B+)
+
 - Use `--use_4bit` for 4-bit quantization
 - Enable `--checkpointing` for gradient checkpointing
 - Reduce `--batch_size` and increase `--grad_accum`
 - Consider using DeepSpeed for multi-GPU setups
 
-### Example for 24GB GPU:
+### Example for 24GB GPU
+
 ```bash
 insanity-train \
     --model_id Qwen/Qwen3-4B-Base \
@@ -219,6 +231,7 @@ insanity-train \
 ## 🔍 Monitoring Training
 
 The script supports Weights & Biases logging by default. To disable:
+
 ```bash
 python scripts/train_dpo.py ... --report_to none
 ```
@@ -235,6 +248,7 @@ tokenizer = AutoTokenizer.from_pretrained("models/DeliriumQwen3-14B")
 ```
 
 Or use with vLLM for fast inference:
+
 ```bash
 python -m vllm.entrypoints.openai.api_server \
     --model models/DeliriumQwen3-14B \
@@ -246,6 +260,7 @@ python -m vllm.entrypoints.openai.api_server \
 For testing and smaller setups, Qwen3-4B is an excellent choice. Here's how to get started quickly:
 
 ### Training Qwen3-4B with Sample Data
+
 ```bash
 # Activate virtual environment
 source venv/bin/activate
@@ -255,6 +270,7 @@ python3 scripts/train_qwen3_4b.py
 ```
 
 ### Manual Qwen3-4B Training
+
 ```bash
 python3 scripts/train_dpo.py \
     --model_id Qwen/Qwen3-4B-Base \
@@ -272,6 +288,7 @@ python3 scripts/train_dpo.py \
 ```
 
 ### Memory Requirements
+
 - **Qwen3-4B**: ~8-12GB VRAM (with 4-bit quantization)
 - **Recommended GPU**: RTX 3080/4070 or better
 - **Minimum**: RTX 3060 12GB
@@ -279,11 +296,13 @@ python3 scripts/train_dpo.py \
 ## 🛠️ Development
 
 ### Adding New Features
+
 1. Add new functionality to the `insanityllm/` package
 2. Update requirements.txt if new dependencies are needed
 3. Update this README with usage instructions
 
 ### Common Issues
+
 - **CUDA out of memory**: Reduce batch size, enable checkpointing, or use 4-bit quantization
 - **Dataset format errors**: Ensure your dataset has `prompt`, `chosen`, and `rejected` columns
 - **Model loading errors**: Check model ID and ensure you have access to private models
@@ -299,6 +318,7 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 ---
 
 For more information about the underlying technologies:
+
 - [Unsloth Documentation](https://github.com/unslothai/unsloth)
 - [DPO Paper](https://arxiv.org/abs/2305.18290)
 - [QLoRA Paper](https://arxiv.org/abs/2305.14314)
