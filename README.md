@@ -29,12 +29,20 @@ wandb login
 
 ### Basic Usage
 
-Train a model with DPO:
+1. **Download a dataset:**
+```bash
+# Download any Hugging Face dataset
+python scripts/download_datasets.py sam-paech/gutenbergs_1_2_3_4-antislop-dpo
 
+# Or use a specific subset/split
+python scripts/download_datasets.py argilla/ultrafeedback-binarized-preferences-cleaned --subset default --split train
+```
+
+2. **Train a model with DPO:**
 ```bash
 python scripts/train_dpo.py \
     --model_id Qwen/Qwen3-14B-Base \
-    --dataset sam-paech/gutenbergs_1_2_3_4-antislop-dpo \
+    --dataset data/sam-paech_gutenbergs_1_2_3_4-antislop-dpo_train.jsonl \
     --output_dir models/DeliriumQwen3-14B \
     --batch_size 1 \
     --grad_accum 8 \
@@ -47,12 +55,15 @@ python scripts/train_dpo.py \
 
 ```
 delirium/
-├── scripts/           # Training and utility scripts
-│   └── train_dpo.py   # Main DPO training script
-├── models/            # Saved fine-tuned models
-├── data/              # Datasets and data files
-├── requirements.txt   # Python dependencies
-└── README.md         # This file
+├── scripts/              # Training and utility scripts
+│   ├── train_dpo.py      # Main DPO training script
+│   ├── train_qwen3_4b.py # Quick launcher for Qwen3-4B training
+│   ├── download_datasets.py # Dataset downloader for any HF dataset
+│   └── utils.py          # Utility functions
+├── models/               # Saved fine-tuned models
+├── data/                 # Datasets and data files
+├── requirements.txt      # Python dependencies
+└── README.md            # This file
 ```
 
 ## 🔧 Training Parameters
@@ -78,9 +89,35 @@ delirium/
 - **Alpha**: 32 (adjustable via `--lora_alpha`)
 - **Target modules**: All linear layers (automatically selected by Unsloth)
 
-## 📊 Dataset Format
+## 📊 Datasets
 
-Your dataset should have three columns:
+### Downloading Datasets
+
+Use the dataset downloader to get any Hugging Face dataset:
+
+```bash
+# Download a specific dataset
+python scripts/download_datasets.py sam-paech/gutenbergs_1_2_3_4-antislop-dpo
+
+# Download with specific subset and split
+python scripts/download_datasets.py argilla/ultrafeedback-binarized-preferences-cleaned --subset default --split train
+
+# Download with sample limit for testing
+python scripts/download_datasets.py sam-paech/gutenbergs_1_2_3_4-antislop-dpo --max-samples 1000
+
+# Save to custom directory
+python scripts/download_datasets.py sam-paech/gutenbergs_1_2_3_4-antislop-dpo --output-dir my_datasets
+```
+
+The script will automatically:
+- Download the specified dataset from Hugging Face
+- Convert it to JSONL format
+- Generate a descriptive filename
+- Show you the first sample to verify the data structure
+
+### Dataset Format
+
+Your dataset should have three columns for DPO training:
 - `prompt`: The input prompt
 - `chosen`: The preferred response
 - `rejected`: The less preferred response
