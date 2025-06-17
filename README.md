@@ -2,6 +2,8 @@
 
 A minimal and efficient setup for fine-tuning large language models using QLoRA (Quantized Low-Rank Adaptation) and DPO (Direct Preference Optimization) with Unsloth.
 
+I am using sam-paech's [Gutenberg dataset](https://huggingface.co/datasets/sam-paech/gutenbergs_1_2_3_4-antislop-dpo) for training, but you can use any Hugging Face dataset with the provided scripts. Their Delirium v1 Model was pretty fun to play with, so I wanted to try it out with QLoRA and DPO.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
