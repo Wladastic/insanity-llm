@@ -9,7 +9,7 @@ I am using sam-paech's [Gutenberg dataset](https://huggingface.co/datasets/sam-p
 ### Prerequisites
 
 - Python 3.10+
-- CUDA-compatible GPU (recommended: 16GB+ VRAM for 14B models)
+- CUDA-compatible GPU (recommended: 16GB+ VRAM for "bigger" models like 8B or higher)
 - Git and Git LFS
 
 ### Installation
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 python3 verify_setup.py
 ```
 
-2. **Configure directories (optional):**
+2. **Configure directories (sort of optional. better to do it):**
 ```bash
 # Copy the example environment file
 cp .env.example .env
@@ -37,7 +37,7 @@ cp .env.example .env
 # nano .env
 ```
 
-3. **Login to Hugging Face and Weights & Biases (optional):**
+3. **Login to Hugging Face and Weights & Biases (optional, but some models require verification):**
 ```bash
 huggingface-cli login
 wandb login

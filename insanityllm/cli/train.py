@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument("--checkpointing", action="store_true", help="Enable gradient checkpointing")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--report_to", default="wandb", choices=["wandb", "none"], help="Tracking backend")
-    return parser.parse_args()
+    return parser
 
 def prepare_dataset(ds_path: str, datasets_dir: str):
     """Load HF dataset or JSONL file with prompt/chosen/rejected columns."""
@@ -54,7 +54,8 @@ def prepare_dataset(ds_path: str, datasets_dir: str):
         return load_dataset(ds_path, split="train")
 
 def main():
-    args = parse_args()
+    parser = parse_args()
+    args = parser.parse_args()
     torch.manual_seed(args.seed)
 
     # Setup environment and get configuration
